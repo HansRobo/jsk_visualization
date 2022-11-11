@@ -12,18 +12,21 @@ jobs:
     name: build
     runs-on: ubuntu-22.04
     timeout-minutes: 120
-    strategy:
-      fail-fast: false
     env:
       ROS_DISTRO: humble
-    container:
-      image: rostooling/setup-ros-docker:ubuntu-jammy-ros-humble-ros-base-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - uses: ros-tooling/setup-ros@v0.3
+        with:
+          required-ros-distributions: humble
 
+      - name: Search packages in this repository
+        id: list_packages
+        run: |
+          echo ::set-output name=package_list::$(colcon list --names-only | sed -e ':loop; N; $!b loop; s/\n/ /g')
       - name: Run build test
         uses: ros-tooling/action-ros-ci@v0.2
         with:
